@@ -49,7 +49,7 @@ class Photo(Base):
     id = Column(Integer, primary_key=True, index=True)
     url = Column(String)
     advertisement_id = Column(Integer, ForeignKey('advertisement.id'))
-    advertisement = relationship("Advertisement", back_populates="photos")
+    # advertisement = relationship("Advertisement", back_populates="photos")
 
 
 class Recall(Base):

@@ -1,14 +1,16 @@
-from app.advertisements.models import Base
+from advertisements.models import Base
 
 from fastapi_users import FastAPIUsers
+from fastapi import APIRouter, Depends
 
-from fastapi import FastAPI, Depends
+from users.auth import auth_backend
+from users.models import User
+from users.manager import get_user_manager
+from users.schemas import UserRead, UserCreate
+from main import app
 
-from app.users.auth import auth_backend
-from app.users.models import User
-from app.users.manager import get_user_manager
-from app.users.schemas import UserRead, UserCreate
 
+router = APIRouter(prefix="/report")
 
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
