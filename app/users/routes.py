@@ -10,16 +10,15 @@ from users.schemas import UserRead, UserCreate
 from main import app
 
 
-router = APIRouter(prefix="/report")
+router = APIRouter(prefix="/users")
 
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
     [auth_backend],
 )
-
-app.include_router(
+@router.post("/auth/jwt")
     fastapi_users.get_auth_router(auth_backend),
-    prefix="/auth/jwt",
+    prefix=,
     tags=["auth"],
 )
 
