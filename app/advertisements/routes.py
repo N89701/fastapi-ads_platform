@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, delete
 from fastapi_users import FastAPIUsers
 from fastapi.exceptions import HTTPException
+from typing import List
 
-from database import get_async_session
-from .crud import create_category
+from database import get_async_session, get_session
 from .models import Category, Group
-from .schemas import CategoryCreate, CategoryRead, GroupCreate
+from .schemas import CategoryCreate, CategoryRead, GroupCreate, GroupRead
 from users.schemas import UserRead
 from users.models import User
 from users.manager import get_user_manager
@@ -27,6 +27,12 @@ router_categories = APIRouter(
     tags=['categories'],
     prefix='/categories',
 )
+
+@router_categories.get('/', response_model=List[CategoryRead])
+async def get_categories(session: AsyncSession = Depends(get_async_session)):
+    categories = await session.execute(select(Category))
+    category_list = categories.scalars().all()
+    return category_list
 
 
 @router_categories.post('/')
@@ -49,6 +55,27 @@ router_groups = APIRouter(
 )
 
 
+@router_groups.get('/', response_model=List[GroupRead])
+async def get_groups(session: AsyncSession = Depends(get_async_session)):
+    groups = await session.execute(select(Group))
+    groups_list = groups.scalars().all()
+    return groups_list
+
+
+@router_groups.get('/{id}/', response_model=GroupRead)
+async def get_groups(
+    id: int,
+    session: AsyncSession = Depends(get_async_session)
+):
+    group = await session.execute(
+        select(Group).filter(Group.id == id).limit(1)
+    )
+    group = group.scalar_one_or_none()
+    if group is None:
+        raise HTTPException(status_code=404, detail="This group is not exists")
+    return group
+
+
 @router_groups.post('/')
 async def create_group(
     request: GroupCreate,
@@ -61,3 +88,23 @@ async def create_group(
     await session.execute(group)
     await session.commit()
     return {"status": "success"}
+
+
+@router_groups.delete('/{group_id}/')
+async def delete_group(
+    group_id: int,
+    user: User = Depends(current_user),
+    session: AsyncSession = Depends(get_async_session)
+):
+    if not user.is_superuser:
+        raise HTTPException(status_code=403, detail="Only admin can delete group")
+    group = delete(Group).where(Group.id == group_id)
+    await session.execute(group)
+    await session.commit()
+    return {"status": "success"}
+
+
+router_advertisements = APIRouter(
+    tags=['ads'],
+    prefix='/ads',
+)

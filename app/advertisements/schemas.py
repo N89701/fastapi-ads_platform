@@ -22,9 +22,11 @@ class GroupCreate(BaseModel):
     avatar: str
 
 
-class GroupRead(GroupCreate):
+class GroupRead(BaseModel):
     id: int
-    admin_id: UserRead
+    title: str
+    description: str
+    avatar: str
 
     class Config:
         orm_mode = True

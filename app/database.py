@@ -10,14 +10,14 @@ from advertisements.models import Base
 
 DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/ads"
 
-# engine = create_engine(DATABASE_URL)
-# Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# def get_session():
-#     session = Session()
-#     try:
-#         yield session
-#     finally:
-#         session.close()
+engine_sync = create_engine(DATABASE_URL)
+SessionSync = sessionmaker(autocommit=False, autoflush=False, bind=engine_sync)
+def get_session():
+    session = SessionSync()
+    try:
+        yield session
+    finally:
+        session.close()
 
 
 engine = create_async_engine(DATABASE_URL, echo=True)
