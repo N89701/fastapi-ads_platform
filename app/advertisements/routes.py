@@ -1,15 +1,19 @@
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from starlette.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select, delete
 from fastapi_users import FastAPIUsers
 from fastapi.exceptions import HTTPException
 from typing import List
+import base64
 
 from database import get_async_session, get_session
-from .models import Category, Group
-from .schemas import CategoryCreate, CategoryRead, GroupCreate, GroupRead
+from .models import Advertisement, Category, Group, Photo
+from .schemas import (
+    CategoryCreate, CategoryRead, GroupCreate, GroupRead, AdvertisementRead,
+    AdvertisementCreate
+)
 from users.schemas import UserRead
 from users.models import User
 from users.manager import get_user_manager
@@ -63,7 +67,7 @@ async def get_groups(session: AsyncSession = Depends(get_async_session)):
 
 
 @router_groups.get('/{id}/', response_model=GroupRead)
-async def get_groups(
+async def get_group(
     id: int,
     session: AsyncSession = Depends(get_async_session)
 ):
@@ -104,7 +108,51 @@ async def delete_group(
     return {"status": "success"}
 
 
-router_advertisements = APIRouter(
+router_ads = APIRouter(
     tags=['ads'],
     prefix='/ads',
 )
+
+
+@router_ads.get('/', response_model=List[AdvertisementRead])
+async def get_ads(session: AsyncSession = Depends(get_async_session)):
+    ads = await session.execute(select(Advertisement))
+    ads_list = ads.scalars().all()
+    return ads_list
+
+
+@router_ads.post('/')
+async def create_advertisement(
+    request: AdvertisementCreate,
+    user: User = Depends(current_user),
+    session: AsyncSession = Depends(get_async_session)
+):
+    ad_data = request.dict()
+    photos_data = ad_data.pop('photos')
+
+    ad_data["author_id"] = user.id
+
+    # Create the advertisement
+    ad = insert(Advertisement).values(**ad_data).returning(Advertisement.id)
+    result = await session.execute(ad)
+    advertisement_id = result.scalar()
+    # Create photos and associate them with the advertisement
+    photos_objects = []
+    for photo_data in photos_data:
+        print(photos_data)
+        # photo_url = base64.b64decode(photo_data["url"]).decode("utf-8")
+        photo_data["advertisement_id"] = advertisement_id
+        # photo_data["url"] = photo_url
+        photo = insert(Photo).values(**photo_data)
+        result = await session.execute(photo)
+        photos_objects.append(result.scalar())
+
+    # Commit the transaction
+    await session.commit()
+
+    # Return success response
+    return {
+        "status": "success",
+        "advertisement": advertisement_id,
+        "photos": photos_objects
+    }

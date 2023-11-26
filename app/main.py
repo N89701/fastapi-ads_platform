@@ -7,7 +7,7 @@ from users.auth import auth_backend
 from users.models import User
 from users.manager import get_user_manager
 from users.schemas import UserRead, UserCreate
-from advertisements.routes import router_categories, router_groups
+from advertisements.routes import router_categories, router_groups, router_ads
 
 
 app = FastAPI(title="Advertisement app")
@@ -33,4 +33,5 @@ app.include_router(
 
 app.include_router(router_categories)
 app.include_router(router_groups)
+app.include_router(router_ads)
 

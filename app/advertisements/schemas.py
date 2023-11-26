@@ -43,7 +43,7 @@ class PhotoBase(BaseModel):
 
 
 class PhotoCreate(BaseModel):
-    pass
+    url: str
 
 
 class AdvertisementBase(BaseModel):
@@ -52,16 +52,18 @@ class AdvertisementBase(BaseModel):
     description: str
     price: int
     group_id: Optional[int]
-    # category_id = int
+    category_id = int
     
 
 class AdvertisementCreate(AdvertisementBase):
-    photos: List[PhotoCreate] = []
+    category_id: int
+    photos: List[PhotoCreate]
 
 
 class AdvertisementRead(AdvertisementBase):
     id: int
-    photos: List[PhotoBase] = []
+    category_id: CategoryRead
+    photos: List[PhotoBase]
 
     class Config:
         orm_mode = True
