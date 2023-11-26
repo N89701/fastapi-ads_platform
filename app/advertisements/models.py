@@ -1,6 +1,5 @@
 import datetime
 
-
 from sqlalchemy import (
     Boolean, Column, ForeignKey, Integer, String, TIMESTAMP
 )
@@ -8,7 +7,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 
 Base: DeclarativeMeta = declarative_base()
-
 
 
 class Category(Base):

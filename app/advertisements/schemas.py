@@ -12,18 +12,22 @@ class CategoryRead(BaseModel):
         orm_mode = True
 
 
-class GroupBase(BaseModel):
+class CategoryCreate(BaseModel):
+    name: str
+
+
+class GroupCreate(BaseModel):
     title: str
     description: str
     avatar: str
 
-    class Config:
-        orm_mode = True
 
-
-class GroupCreate(GroupBase):
+class GroupRead(GroupCreate):
     id: int
     admin_id: UserRead
+
+    class Config:
+        orm_mode = True
 
 
 class AdvertisementType(str, Enum):
@@ -46,7 +50,7 @@ class AdvertisementBase(BaseModel):
     description: str
     price: int
     group_id: Optional[int]
-    category_id = CategoryRead
+    # category_id = int
     
 
 class AdvertisementCreate(AdvertisementBase):
