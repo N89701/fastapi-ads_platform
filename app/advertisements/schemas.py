@@ -1,6 +1,8 @@
-from typing import List, Optional
-from pydantic import BaseModel
 from enum import Enum
+from typing import List, Optional
+
+from pydantic import BaseModel
+
 from users.schemas import UserRead
 
 
@@ -52,25 +54,25 @@ class AdvertisementBase(BaseModel):
     description: str
     price: int
     group_id: Optional[int]
-    category_id = int
-    
+    # category_id: int
+
 
 class AdvertisementCreate(AdvertisementBase):
-    category_id: int
     photos: List[PhotoCreate]
+    category_id: int
 
 
 class AdvertisementRead(AdvertisementBase):
     id: int
-    category_id: CategoryRead
     photos: List[PhotoBase]
+    author_id: UserRead
+    category_id: int
 
     class Config:
         orm_mode = True
 
 
 class RecallCreate(BaseModel):
-    advertisement_id: int
     text: str
 
 
@@ -82,7 +84,6 @@ class RecallRead(BaseModel):
 
 
 class ComplaintCreate(BaseModel):
-    advertisement_id: int
     text: str
 
 

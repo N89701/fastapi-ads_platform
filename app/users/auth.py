@@ -1,5 +1,6 @@
-from fastapi_users.authentication import CookieTransport, AuthenticationBackend
-from fastapi_users.authentication import JWTStrategy
+from fastapi_users.authentication import (
+    AuthenticationBackend, CookieTransport, JWTStrategy
+)
 
 cookie_transport = CookieTransport(
     cookie_name="advertisements",

@@ -3,8 +3,8 @@ import datetime
 from sqlalchemy import (
     Boolean, Column, ForeignKey, Integer, String, TIMESTAMP
 )
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
+from sqlalchemy.orm import relationship
 
 Base: DeclarativeMeta = declarative_base()
 
@@ -40,6 +40,7 @@ class Advertisement(Base):
     group_id = Column(Integer, ForeignKey("group.id"))
     category_id = Column(Integer, ForeignKey("category.id"))
     is_active = Column(Boolean)
+    photos = relationship("Photo", back_populates="advertisement")
 
 
 class Photo(Base):
@@ -47,7 +48,7 @@ class Photo(Base):
     id = Column(Integer, primary_key=True, index=True)
     url = Column(String)
     advertisement_id = Column(Integer, ForeignKey('advertisement.id'))
-    # advertisement = relationship("Advertisement", back_populates="photos")
+    advertisement = relationship("Advertisement", back_populates="photos")
 
 
 class Recall(Base):
